@@ -5,35 +5,30 @@
 # Maintainer: Tobias Powalowski <tpowa@archlinux.org>
 # Maintainer: Thomas Baechler <thomas@archlinux.org>
 
-pkgbase=linux-mainline               # Build stock -ARCH kernel
+pkgbase=linux-lightnvm               # Build stock -ARCH kernel
 #pkgbase=linux-custom       # Build kernel with a different name
-_srcname=linux-4.13-rc6
-pkgver=4.13rc6
+_srcname=linux
+pkgver=4.12rc5
 pkgrel=1
-arch=('i686' 'x86_64')
+arch=('x86_64')
 url="https://www.kernel.org/"
 license=('GPL2')
-makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'libelf')
+makedepends=('kmod' 'inetutils' 'bc' 'libelf')
 options=('!strip')
-source=("https://git.kernel.org/torvalds/t/${_srcname}.tar.gz"
+source=("git+https://github.com/OpenChannelSSD/linux.git#branch=pblk.cnex"
         #"https://www.kernel.org/pub/linux/kernel/v4.x/${_srcname}.tar.sign"
         # the main kernel config files
-        'config.i686' 'config.x86_64'
+        'config.x86_64'
         # pacman hook for initramfs regeneration
         '90-linux.hook'
         # standard config files for mkinitcpio ramdisk
         'linux.preset'
         )
 
-sha256sums=('c29dcb48a0e77468c78dffe9b1edaa1c8e66f87083d4791a41b8ca06e35b4d1a'
-            'df55887a43dcbb6bd35fd2fb1ec841427b6ea827334c0880cbc256d4f042a7a1'
-            'bf84528c592d1841bba0662242f0339a24a1de384c31f28248631e8be9446586'
-            '834bd254b56ab71d73f59b3221f056c72f559553c04718e350ab2a3e2991afe0'
-            'ad6344badc91ad0630caacde83f7f9b97276f80d26a20619a87952be65492c65')
-validpgpkeys=(
-              'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linus Torvalds
-              '647F28654894E3BD457199BE38DBBDC86092693E' # Greg Kroah-Hartman
-             )
+sha256sums=('SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP')
 
 _kernelname=${pkgbase#linux}
 
@@ -266,21 +261,7 @@ _package-headers() {
   rm -f "${pkgdir}/usr/lib/modules/${_kernver}/build/Documentation/kbuild/Kconfig.select-break"
 }
 
-_package-docs() {
-  pkgdesc="Kernel hackers manual - HTML documentation that comes with the ${pkgbase/linux/Linux} kernel"
-
-  cd "${srcdir}/${_srcname}"
-
-  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build"
-  cp -al Documentation "${pkgdir}/usr/lib/modules/${_kernver}/build"
-  find "${pkgdir}" -type f -exec chmod 444 {} \;
-  find "${pkgdir}" -type d -exec chmod 755 {} \;
-
-  # remove a file already in linux package
-  rm -f "${pkgdir}/usr/lib/modules/${_kernver}/build/Documentation/DocBook/Makefile"
-}
-
-pkgname=("${pkgbase}" "${pkgbase}-headers" "${pkgbase}-docs")
+pkgname=("${pkgbase}" "${pkgbase}-headers")
 for _p in ${pkgname[@]}; do
   eval "package_${_p}() {
     $(declare -f "_package${_p#${pkgbase}}")
